@@ -161,18 +161,40 @@ gamma_dot = [0]
 
 # Setting Up Time 
 z_val = []   
-home_2_start_steps = 5
+
+
+
+# Make home_2_start_z_dot array
+
+home_2_start_steps = 250
 step = 3/home_2_start_steps
+
+ramp_up = int(home_2_start_steps * .166667)
+
+ramp_down = int(home_2_start_steps * .8333334)
+print(ramp_up)
+print(ramp_down)
 
 time = np.linspace(0, 3, home_2_start_steps)
 
-home_2_start_z_dot = -.49778 / home_2_start_steps
-print(home_2_start_z_dot)
+home_2_start_z_dot = np.zeros(home_2_start_steps)
 
-#for t in np.arange(0, 30, step):
-#    z_dot.append(z_dot_val)
+for i in range(0, home_2_start_steps):
+    if i < ramp_up:
+        home_2_start_z_dot[i] = home_2_start_z_dot[i-1] - (.35/ramp_up)
+ 
+    elif i >= ramp_up and i < ramp_down:
+        
+        home_2_start_z_dot[i] = -.35
 
-#print(z_dot)
+    elif i >= ramp_down and i < home_2_start_steps:
+        home_2_start_z_dot[i] = home_2_start_z_dot[i-1] + (.35/ramp_up)
+    
+    else:
+   
+        home_2_start_z_dot[i] = 0
+
+
 
 # Drawing Specifications:
 
@@ -185,60 +207,30 @@ b = 0
 # Moving to start point
 
 
-J_sub_test = J.subs({theta_1: theta_1_vals[0], theta_2: theta_2_vals[0], theta_3: theta_3_vals[0], theta_4: theta_4_vals[0], theta_5: theta_5_vals[0], theta_6: theta_6_vals[0]})
 
-pretty_print(J_sub_test)
 
 # Main Loop
+
+print("entering loop")
 for i in range(0, home_2_start_steps):
 
-    x_vals = Matrix([x_dot[0], y_dot[0], home_2_start_z_dot, alpha_dot[0], beta_dot[0], gamma_dot[0]])
-
-    #print("x_vals:")
-    #print(x_vals)
+    x_vals = Matrix([x_dot[0], y_dot[0], home_2_start_z_dot[i], alpha_dot[0], beta_dot[0], gamma_dot[0]])
 
     J_sub = J.subs({theta_1: theta_1_vals[i], theta_2: theta_2_vals[i], theta_3: theta_3_vals[i], theta_4: theta_4_vals[i], theta_5: theta_5_vals[i], theta_6: theta_6_vals[i]})
 
-    #print("Jacobian:" + str(i))
-    #pretty_print(J_sub)
+    inv_J = J_sub.pinv()
 
-    inv_J = J_sub ** -1
+    q_dot = inv_J * x_vals
 
-    #print("Inverse Jacobian:" + str(i))
-    #pretty_print(inv_J)
-
-    q = inv_J * x_vals
-
-    print("q(really its q_dot):" + str(i))
-
-    pretty_print(q)
-
-    #q = q_dot * step
 
     # Collecting Calculated Joint Angles
 
-    theta_1_vals.append(theta_1_vals[i-1] + (float(q[0]) * step))
-    theta_2_vals.append(theta_2_vals[i-1] + (float(q[1]) * step))
-    theta_3_vals.append(theta_3_vals[i-1] + (float(q[2]) * step))
-    theta_4_vals.append(theta_4_vals[i-1] + (float(q[3]) * step))
-    theta_5_vals.append(theta_5_vals[i-1] + (float(q[4]) * step))
-    theta_6_vals.append(theta_6_vals[i-1] + (float(q[5]) * step))
-
-    #print("theta_2_vals")
-    #print(theta_2_vals)
-
-
-
-
-
-#print("theta values 2,3,4")
-#print(theta_1_vals)
-#print(theta_2_vals)
-#print(theta_3_vals)
-#print(theta_4_vals)
-#print(theta_5_vals)
-#print(theta_6_vals)
-
+    theta_1_vals.append(theta_1_vals[i-1] + (float(q_dot[0]) * step))
+    theta_2_vals.append(theta_2_vals[i-1] + (float(q_dot[1]) * step))
+    theta_3_vals.append(theta_3_vals[i-1] + (float(q_dot[2]) * step))
+    theta_4_vals.append(theta_4_vals[i-1] + (float(q_dot[3]) * step))
+    theta_5_vals.append(theta_5_vals[i-1] + (float(q_dot[4]) * step))
+    theta_6_vals.append(theta_6_vals[i-1] + (float(q_dot[5]) * step))
 
 
 
@@ -261,9 +253,10 @@ for i in range(0, home_2_start_steps):
     z_end_pos.append(z_pos)
 
 
-#print(x_end_pos)
-#print(y_end_pos)
-#print(z_end_pos)
+
+print(x_end_pos[-1])
+print(y_end_pos[-1])
+print(z_end_pos[-1])
 
 # Plotting Relevant Information
 
@@ -282,9 +275,16 @@ plt.plot(time, theta_6_vals[1:], label='theta 6')
 
 plt.legend()
 
+
 # Plot of End Effector Trajectory
 plt.figure(2)
 plt.title('End Effector Trajectory')
 plt.plot(x_end_pos, z_end_pos)
+plt.xlim(-50,50)
+
+plt.figure(3)
+
+plt.title("move home 2 start z dot")
+plt.plot(time, home_2_start_z_dot, label='z dot')
 
 plt.show()
