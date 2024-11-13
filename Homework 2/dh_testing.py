@@ -166,12 +166,13 @@ z_val = []
 
 # Make home_2_start_z_dot array
 
-home_2_start_steps = 250
+home_2_start_steps = 300
 step = 3/home_2_start_steps
 
-ramp_up = int(home_2_start_steps * .166667)
+ramp_up = int(home_2_start_steps * .0333334)
 
-ramp_down = int(home_2_start_steps * .8333334)
+ramp_down = int(home_2_start_steps * .966667)
+
 print(ramp_up)
 print(ramp_down)
 
@@ -181,14 +182,14 @@ home_2_start_z_dot = np.zeros(home_2_start_steps)
 
 for i in range(0, home_2_start_steps):
     if i < ramp_up:
-        home_2_start_z_dot[i] = home_2_start_z_dot[i-1] - (.35/ramp_up)
+        home_2_start_z_dot[i] = home_2_start_z_dot[i-1] - ((.1724*1.71)/ramp_up)
  
     elif i >= ramp_up and i < ramp_down:
         
-        home_2_start_z_dot[i] = -.35
+        home_2_start_z_dot[i] = -(.1724*1.71)
 
     elif i >= ramp_down and i < home_2_start_steps:
-        home_2_start_z_dot[i] = home_2_start_z_dot[i-1] + (.35/ramp_up)
+        home_2_start_z_dot[i] = home_2_start_z_dot[i-1] + ((.1724*1.71)/ramp_up)
     
     else:
    
