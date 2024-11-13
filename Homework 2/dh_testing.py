@@ -159,15 +159,12 @@ alpha_dot = [0]
 beta_dot = [0]
 gamma_dot = [0]
 
-# Setting Up Time 
-z_val = []   
-
-
+step_tracker = 0
 
 # Make home_2_start_z_dot array
 
 home_2_start_steps = 300
-step = 3/home_2_start_steps
+start_step = 3/home_2_start_steps
 
 ramp_up = int(home_2_start_steps * .0333334)
 
@@ -176,7 +173,7 @@ ramp_down = int(home_2_start_steps * .966667)
 print(ramp_up)
 print(ramp_down)
 
-time = np.linspace(0, 3, home_2_start_steps)
+
 
 home_2_start_z_dot = np.zeros(home_2_start_steps)
 
@@ -196,23 +193,40 @@ for i in range(0, home_2_start_steps):
         home_2_start_z_dot[i] = 0
 
 
+# Specifying Cirlce Information
 
-# Drawing Specifications:
+r = .05
 
-# Circle Specifications
+circle_total_steps = 500
+circle_step = 5/circle_total_steps
 
-r = 5
-a = 0
-b = 0
+# Creating a list of alpha values for circle
+alpha = []
 
-# Moving to start point
+for t in np.arange(0, 5, circle_step):
+    alpha.append(((pi.evalf(5))/5) *t)
+
+# Make circle_x_dot, cirlce_z_dot arrays
+x_circle = []
+z_circle = []
+
+circle_x_dot = []
+circle_z_dot = []
+
+for i in range(0, len(alpha)):
+    x_circle.append(r * cos(alpha[i]))
+    z_circle.append(r * sin(alpha[i]))
+    circle_x_dot.append(((pi.evalf(5)) / 5) * r * sin(alpha[i]))
+    circle_z_dot.append(((pi.evalf(5)) / 5) * r * cos(alpha[i]))
+
+  # Drawing Specifications:
 
 
 
 
-# Main Loop
+# Moving from Home Position to Start Point
 
-print("entering loop")
+print("Moving From Home Position to Start Point")
 for i in range(0, home_2_start_steps):
 
     x_vals = Matrix([x_dot[0], y_dot[0], home_2_start_z_dot[i], alpha_dot[0], beta_dot[0], gamma_dot[0]])
@@ -226,19 +240,46 @@ for i in range(0, home_2_start_steps):
 
     # Collecting Calculated Joint Angles
 
-    theta_1_vals.append(theta_1_vals[i-1] + (float(q_dot[0]) * step))
-    theta_2_vals.append(theta_2_vals[i-1] + (float(q_dot[1]) * step))
-    theta_3_vals.append(theta_3_vals[i-1] + (float(q_dot[2]) * step))
-    theta_4_vals.append(theta_4_vals[i-1] + (float(q_dot[3]) * step))
-    theta_5_vals.append(theta_5_vals[i-1] + (float(q_dot[4]) * step))
-    theta_6_vals.append(theta_6_vals[i-1] + (float(q_dot[5]) * step))
+    theta_1_vals.append(theta_1_vals[i-1] + (float(q_dot[0]) * start_step))
+    theta_2_vals.append(theta_2_vals[i-1] + (float(q_dot[1]) * start_step))
+    theta_3_vals.append(theta_3_vals[i-1] + (float(q_dot[2]) * start_step))
+    theta_4_vals.append(theta_4_vals[i-1] + (float(q_dot[3]) * start_step))
+    theta_5_vals.append(theta_5_vals[i-1] + (float(q_dot[4]) * start_step))
+    theta_6_vals.append(theta_6_vals[i-1] + (float(q_dot[5]) * start_step))
+
+step_tracker += home_2_start_steps
+
+print("Drawing Half Circle")
+for i in range(0, circle_total_steps):
+
+    x_vals = Matrix([circle_x_dot[i], y_dot[0], circle_z_dot[i], alpha_dot[0], beta_dot[0], gamma_dot[0]])
+
+    J_sub = J.subs({theta_1: theta_1_vals[step_tracker + i], theta_2: theta_2_vals[step_tracker + i], theta_3: theta_3_vals[step_tracker + i], theta_4: theta_4_vals[step_tracker + i], theta_5: theta_5_vals[step_tracker + i], theta_6: theta_6_vals[step_tracker + i]})
+
+    inv_J = J_sub.pinv()
+
+    q_dot = inv_J * x_vals
+
+
+    # Collecting Calculated Joint Angles
+
+    theta_1_vals.append(theta_1_vals[step_tracker + i-1] + (float(q_dot[0]) * circle_step))
+    theta_2_vals.append(theta_2_vals[step_tracker + i-1] + (float(q_dot[1]) * circle_step))
+    theta_3_vals.append(theta_3_vals[step_tracker + i-1] + (float(q_dot[2]) * circle_step))
+    theta_4_vals.append(theta_4_vals[step_tracker + i-1] + (float(q_dot[3]) * circle_step))
+    theta_5_vals.append(theta_5_vals[step_tracker + i-1] + (float(q_dot[4]) * circle_step))
+    theta_6_vals.append(theta_6_vals[step_tracker + i-1] + (float(q_dot[5]) * circle_step))
+
+
 
 
 
 
 # Verifying Solution by Plugging in calculated theta values
+total_steps = home_2_start_steps + circle_total_steps
+time = np.linspace(0, 3, total_steps)
 
-for i in range(0, home_2_start_steps):
+for i in range(0, total_steps):
 
     # Plugging Calculated Joint Angles Back into Forward Kinematic Equation
 
@@ -281,11 +322,17 @@ plt.legend()
 plt.figure(2)
 plt.title('End Effector Trajectory')
 plt.plot(x_end_pos, z_end_pos)
-plt.xlim(-50,50)
+plt.xlim(-1,1)
 
+# Plot of End Effector Trajectory
 plt.figure(3)
+plt.title('Circle Test')
+plt.plot(x_circle, z_circle)
+plt.xlim(-1,1)
 
-plt.title("move home 2 start z dot")
-plt.plot(time, home_2_start_z_dot, label='z dot')
+#plt.figure(3)
+
+#plt.title("move home 2 start z dot")
+#plt.plot(time, home_2_start_z_dot, label='z dot')
 
 plt.show()
