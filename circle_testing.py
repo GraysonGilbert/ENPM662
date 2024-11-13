@@ -141,9 +141,9 @@ J = Matrix([[q_1_x_dot, q_2_x_dot, q_3_x_dot, q_4_x_dot, q_5_x_dot, q_6_x_dot],
 
 #Initialize Robot in Home Position
 theta_1_vals = [0]
-theta_2_vals = [0.01]
-theta_3_vals = [-.0383]
-theta_4_vals = [0.0283]
+theta_2_vals = [0.5535]
+theta_3_vals = [-2.124]
+theta_4_vals = [1.57]
 theta_5_vals = [0.0001]
 theta_6_vals = [0]
 
@@ -152,7 +152,7 @@ y_end_pos = []
 z_end_pos = []
 
 # Initialize x,yz, velocities
-x_dot = [-0.001]
+x_dot = [0]
 y_dot = [0]
 z_dot = []
 alpha_dot = [0]
@@ -179,14 +179,14 @@ home_2_start_z_dot = np.zeros(home_2_start_steps)
 
 for i in range(0, home_2_start_steps):
     if i < ramp_up:
-        home_2_start_z_dot[i] = home_2_start_z_dot[i-1] - ((.1724*1.71)/ramp_up)
+        home_2_start_z_dot[i] = home_2_start_z_dot[i-1] - ((.1)/ramp_up)
  
     elif i >= ramp_up and i < ramp_down:
         
-        home_2_start_z_dot[i] = -(.1724*1.71)
+        home_2_start_z_dot[i] = -(.1)
 
     elif i >= ramp_down and i < home_2_start_steps:
-        home_2_start_z_dot[i] = home_2_start_z_dot[i-1] + ((.1724*1.71)/ramp_up)
+        home_2_start_z_dot[i] = home_2_start_z_dot[i-1] + ((.1)/ramp_up)
     
     else:
    
@@ -222,32 +222,39 @@ for i in range(0, len(alpha)):
   # Drawing Specifications:
 
 
+# Make vertical_z_dot array
+
+vertical_steps = 500
+vert_step = 5/vertical_steps
+
+ramp_up = int(home_2_start_steps * .0333334)
+
+ramp_down = int(home_2_start_steps * .966667)
+
+print(ramp_up)
+print(ramp_down)
 
 
-# Moving from Home Position to Start Point
 
-print("Moving From Home Position to Start Point")
+home_2_start_z_dot = np.zeros(home_2_start_steps)
+
 for i in range(0, home_2_start_steps):
+    if i < ramp_up:
+        home_2_start_z_dot[i] = home_2_start_z_dot[i-1] - ((.1)/ramp_up)
+ 
+    elif i >= ramp_up and i < ramp_down:
+        
+        home_2_start_z_dot[i] = -(.1)
 
-    x_vals = Matrix([x_dot[0], y_dot[0], home_2_start_z_dot[i], alpha_dot[0], beta_dot[0], gamma_dot[0]])
+    elif i >= ramp_down and i < home_2_start_steps:
+        home_2_start_z_dot[i] = home_2_start_z_dot[i-1] + ((.1)/ramp_up)
+    
+    else:
+   
+        home_2_start_z_dot[i] = 0
 
-    J_sub = J.subs({theta_1: theta_1_vals[i], theta_2: theta_2_vals[i], theta_3: theta_3_vals[i], theta_4: theta_4_vals[i], theta_5: theta_5_vals[i], theta_6: theta_6_vals[i]})
-
-    inv_J = J_sub.pinv()
-
-    q_dot = inv_J * x_vals
 
 
-    # Collecting Calculated Joint Angles
-
-    theta_1_vals.append(theta_1_vals[i-1] + (float(q_dot[0]) * start_step))
-    theta_2_vals.append(theta_2_vals[i-1] + (float(q_dot[1]) * start_step))
-    theta_3_vals.append(theta_3_vals[i-1] + (float(q_dot[2]) * start_step))
-    theta_4_vals.append(theta_4_vals[i-1] + (float(q_dot[3]) * start_step))
-    theta_5_vals.append(theta_5_vals[i-1] + (float(q_dot[4]) * start_step))
-    theta_6_vals.append(theta_6_vals[i-1] + (float(q_dot[5]) * start_step))
-
-step_tracker += home_2_start_steps
 
 print("Drawing Half Circle")
 for i in range(0, circle_total_steps):
@@ -272,11 +279,33 @@ for i in range(0, circle_total_steps):
 
 
 
+# Moving from Home Position to Start Point
+step_tracker += 500
 
+print("Moving From Home Position to Start Point")
+for i in range(0, home_2_start_steps):
+
+    x_vals = Matrix([x_dot[0], y_dot[0], home_2_start_z_dot[step_tracker+i], alpha_dot[0], beta_dot[0], gamma_dot[0]])
+
+    J_sub = J.subs({theta_1: theta_1_vals[step_tracker + i], theta_2: theta_2_vals[step_tracker + i], theta_3: theta_3_vals[step_tracker + i], theta_4: theta_4_vals[step_tracker + i], theta_5: theta_5_vals[step_tracker + i], theta_6: theta_6_vals[step_tracker + i]})
+
+    inv_J = J_sub.pinv()
+
+    q_dot = inv_J * x_vals
+
+
+    # Collecting Calculated Joint Angles
+
+    theta_1_vals.append(theta_1_vals[step_tracker + i-1] + (float(q_dot[0]) * start_step))
+    theta_2_vals.append(theta_2_vals[step_tracker + i-1] + (float(q_dot[1]) * start_step))
+    theta_3_vals.append(theta_3_vals[step_tracker + i-1] + (float(q_dot[2]) * start_step))
+    theta_4_vals.append(theta_4_vals[step_tracker + i-1] + (float(q_dot[3]) * start_step))
+    theta_5_vals.append(theta_5_vals[step_tracker + i-1] + (float(q_dot[4]) * start_step))
+    theta_6_vals.append(theta_6_vals[step_tracker + i-1] + (float(q_dot[5]) * start_step))
 
 
 # Verifying Solution by Plugging in calculated theta values
-total_steps = home_2_start_steps + circle_total_steps
+total_steps = 300 + circle_total_steps
 time = np.linspace(0, 3, total_steps)
 
 for i in range(0, total_steps):
@@ -322,13 +351,13 @@ plt.legend()
 plt.figure(2)
 plt.title('End Effector Trajectory')
 plt.plot(x_end_pos, z_end_pos)
-plt.xlim(-1,1)
+plt.xlim(-.25,.25)
 
 # Plot of End Effector Trajectory
 plt.figure(3)
 plt.title('Circle Test')
 plt.plot(x_circle, z_circle)
-plt.xlim(-1,1)
+plt.xlim(-.25, .25)
 
 #plt.figure(3)
 
