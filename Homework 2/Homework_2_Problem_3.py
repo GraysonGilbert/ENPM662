@@ -141,9 +141,9 @@ J = Matrix([[q_1_x_dot, q_2_x_dot, q_3_x_dot, q_4_x_dot, q_5_x_dot, q_6_x_dot],
 
 #Initialize Robot in Home Position
 theta_1_vals = [0]
-theta_2_vals = [0.5535]
-theta_3_vals = [-2.124]
-theta_4_vals = [1.57]
+theta_2_vals = [0.1]
+theta_3_vals = [-.383]
+theta_4_vals = [0.283]
 theta_5_vals = [0.0001]
 theta_6_vals = [0]
 
@@ -170,11 +170,6 @@ ramp_up = int(home_2_start_steps * .0333334)
 
 ramp_down = int(home_2_start_steps * .966667)
 
-print(ramp_up)
-print(ramp_down)
-
-
-
 home_2_start_z_dot = np.zeros(home_2_start_steps)
 
 for i in range(0, home_2_start_steps):
@@ -193,18 +188,46 @@ for i in range(0, home_2_start_steps):
         home_2_start_z_dot[i] = 0
 
 
+
+# Straight Line Down Path from Home Position
+
+vertical_steps = 400
+vert_step = 4/vertical_steps
+
+home_vert_z_dot = np.zeros(vertical_steps)
+
+home_ramp_up_vert = int(vertical_steps * 0.1)
+home_ramp_down_vert = int(vertical_steps * 0.9)
+
+
+for i in range(0, vertical_steps):
+
+    if i < home_ramp_up_vert:
+        home_vert_z_dot[i] = home_vert_z_dot[i-1] - (0.0513/home_ramp_up_vert) * 2
+
+    if i >= home_ramp_up_vert and i < home_ramp_down_vert:
+        home_vert_z_dot[i] = -0.0512 * 2
+
+    if i >= home_ramp_down_vert and i < vertical_steps:
+        home_vert_z_dot[i] = home_vert_z_dot[i-1] + ((0.0506/home_ramp_up_vert)) * 2
+    
+    if i >= vertical_steps:
+        home_vert_z_dot[i] = 0
+
+
+
 # Specifying Cirlce Information
 
 r = .05
 
-circle_total_steps = 500
-circle_step = 5/circle_total_steps
+circle_total_steps = 400
+circle_step = 4/circle_total_steps
 
 # Creating a list of alpha values for circle
 alpha = []
 
-for t in np.arange(0, 5, circle_step):
-    alpha.append(((pi.evalf(5))/5) *t)
+for t in np.arange(0, 4, circle_step):
+    alpha.append(((pi.evalf(5))/4) *t)
 
 # Make circle_x_dot, cirlce_z_dot arrays
 x_circle = []
@@ -216,10 +239,8 @@ circle_z_dot = []
 for i in range(0, len(alpha)):
     x_circle.append(r * cos(alpha[i]))
     z_circle.append(r * sin(alpha[i]))
-    circle_x_dot.append(((2 * pi.evalf(5)) / 5) * r * sin(alpha[i]))
-    circle_z_dot.append(((2 * pi.evalf(5)) / 5) * r * cos(alpha[i]))
-
-  # Drawing Specifications:
+    circle_x_dot.append(((2 * pi.evalf(5)) / 4) * r * sin(alpha[i]))
+    circle_z_dot.append(((2 * pi.evalf(5)) / 4) * r * cos(alpha[i]))
 
 
 # Straight Line Down Path
@@ -231,9 +252,6 @@ vert_z_dot = np.zeros(vertical_steps)
 
 ramp_up_vert = int(vertical_steps * 0.1)
 ramp_down_vert = int(vertical_steps * 0.9)
-
-print("ramp up vert: " + str(ramp_up_vert))
-print("ramp down vert: " + str(ramp_down_vert))
 
 for i in range(0, vertical_steps):
 
@@ -247,6 +265,7 @@ for i in range(0, vertical_steps):
         vert_z_dot[i] = 0
 
 
+
 # Straight Line Across Path
 
 horizontal_steps = 400
@@ -257,22 +276,20 @@ horiz_step_x_dot = np.zeros(horizontal_steps)
 ramp_up_horiz = int(horizontal_steps * 0.1)
 ramp_down_horiz = int(horizontal_steps * 0.9)
 
-print("ramp up horiz: " + str(ramp_up_horiz))
-print("ramp down horiz: " + str(ramp_down_horiz))
-
 for i in range(0, horizontal_steps):
 
     if i < ramp_up_horiz:
-        horiz_step_x_dot[i] = horiz_step_x_dot[i-1] + ((0.0285/ramp_up_horiz)) * 2
+        horiz_step_x_dot[i] = horiz_step_x_dot[i-1] + ((0.028/ramp_up_horiz)) * 2
 
     if i >= ramp_up_horiz and i < ramp_down_horiz:
-        horiz_step_x_dot[i] = (0.0285) * 2
+        horiz_step_x_dot[i] = (0.028) * 2
 
     if i >= ramp_down_horiz and i < horizontal_steps:
-        horiz_step_x_dot[i] = horiz_step_x_dot[i-1] - ((0.0285/ramp_up_horiz)) * 2
+        horiz_step_x_dot[i] = horiz_step_x_dot[i-1] - ((0.028/ramp_up_horiz)) * 2
     
     if i >= vertical_steps:
         horiz_step_x_dot[i] = 0
+
 
 
 # Straight Line Up Path
@@ -284,9 +301,35 @@ for i in range(0, vertical_steps):
     vert_up_z_dot[i] = (-1) * rev_vert_z_dot[i]
 
 
+#__________________________________________________________________________________________
+
 # Moving from Home Position to Start Point
 
-#step_tracker += home_2_start_steps
+print("Drawing Vertical Line Down from Home Position")
+for i in range(0, vertical_steps):
+
+    x_vals = Matrix([0, 0, home_vert_z_dot[i], 0, 0, 0])
+
+    J_sub = J.subs({theta_1: theta_1_vals[step_tracker + i], theta_2: theta_2_vals[step_tracker + i], theta_3: theta_3_vals[step_tracker + i], theta_4: theta_4_vals[step_tracker + i], theta_5: theta_5_vals[step_tracker + i], theta_6: theta_6_vals[step_tracker + i]})
+
+    inv_J = J_sub.pinv()
+
+    q_dot = inv_J * x_vals
+
+
+    # Collecting Calculated Joint Angles
+
+    theta_1_vals.append(theta_1_vals[step_tracker + i-1] + (float(q_dot[0]) * vert_step))
+    theta_2_vals.append(theta_2_vals[step_tracker + i-1] + (float(q_dot[1]) * vert_step))
+    theta_3_vals.append(theta_3_vals[step_tracker + i-1] + (float(q_dot[2]) * vert_step))
+    theta_4_vals.append(theta_4_vals[step_tracker + i-1] + (float(q_dot[3]) * vert_step))
+    theta_5_vals.append(theta_5_vals[step_tracker + i-1] + (float(q_dot[4]) * vert_step))
+    theta_6_vals.append(theta_6_vals[step_tracker + i-1] + (float(q_dot[5]) * vert_step))
+
+
+step_tracker += vertical_steps
+
+# Drawing Semi Circle
 
 print("Drawing Half Circle")
 for i in range(0, circle_total_steps):
@@ -310,6 +353,8 @@ for i in range(0, circle_total_steps):
     theta_6_vals.append(theta_6_vals[step_tracker + i-1] + (float(q_dot[5]) * circle_step))
 
 step_tracker += circle_total_steps
+
+# Drawing Vertical Line Down
 
 print("Drawing Vertical Line Down")
 for i in range(0, vertical_steps):
@@ -335,6 +380,8 @@ for i in range(0, vertical_steps):
 
 step_tracker += vertical_steps
 
+#Drawing Horizontal Line Across
+
 print("Drawing Horizontal Line Across")
 for i in range(0, vertical_steps):
 
@@ -358,6 +405,8 @@ for i in range(0, vertical_steps):
 
 step_tracker += horizontal_steps
 
+# Drawing Vertical Line Up, Completing Shape
+
 print("Drawing Vertical Line Up")
 for i in range(0, vertical_steps):
 
@@ -378,11 +427,12 @@ for i in range(0, vertical_steps):
     theta_4_vals.append(theta_4_vals[step_tracker + i-1] + (float(q_dot[3]) * vert_step))
     theta_5_vals.append(theta_5_vals[step_tracker + i-1] + (float(q_dot[4]) * vert_step))
     theta_6_vals.append(theta_6_vals[step_tracker + i-1] + (float(q_dot[5]) * vert_step))
+
 #_________________________________________________________________________________________________
 
 # Verifying Solution by Plugging in calculated theta values
-total_steps = 0 + circle_total_steps + vertical_steps + horizontal_steps + vertical_steps
-time = np.linspace(0, 3, total_steps)
+total_steps = vertical_steps + circle_total_steps + vertical_steps + horizontal_steps + vertical_steps
+time = np.linspace(0, 20, total_steps)
 
 for i in range(0, total_steps):
 
@@ -398,14 +448,6 @@ for i in range(0, total_steps):
     x_end_pos.append(x_pos)
     y_end_pos.append(y_pos)
     z_end_pos.append(z_pos)
-
-
-
-print(x_end_pos[-1])
-print(y_end_pos[-1])
-print(z_end_pos[-1])
-
-
 
 
 # Plotting Relevant Information
@@ -427,32 +469,40 @@ plt.legend()
 plt.figure(2)
 plt.title('End Effector Trajectory')
 plt.plot(x_end_pos, z_end_pos)
-#plt.xlim(-1,1)
-#plt.ylim()
 
-# Plot of End Effector Trajectory
+# Plot of just the shape after reaching start point
+
 plt.figure(3)
-plt.title('Circle Test')
-plt.plot(x_circle, z_circle)
+plt.title('End Effector Trajectory (After reaching start point)')
+plt.plot(x_end_pos[400:], z_end_pos[400:])
+
+# Plot of X_dot and Z_dot while drawing Semi Circle
 
 plt.figure(4)
+plt.title("X_dot and Z_dot while drawing Semi Circle")
+plt.plot(time[:circle_total_steps], circle_x_dot, label='x_dot')
+plt.plot(time[:circle_total_steps], circle_z_dot, label='z_dot')
 
+# Plot of Vertical Line Down Z_dot
+plt.figure(5)
 plt.title("vertical line down z dot")
 plt.plot(time[:vertical_steps], vert_z_dot, label='z dot')
 
-plt.figure(5)
-
+# Plot of Horizontal Line Across Z_dot
+plt.figure(6)
 plt.title("horizontal line across x dot")
 plt.plot(time[:horizontal_steps], horiz_step_x_dot, label='x dot')
 
-plt.figure(6)
-
+# Plot of Vertical Line Up Z_dot
+plt.figure(7)
 plt.title("vertical line up z dot")
 plt.plot(time[:vertical_steps], vert_up_z_dot, label='z dot')
 
-#plt.figure(3)
+# Plot of Moving from Home Position to Start Point
+plt.figure(8)
+plt.title("vertical line down from home position z dot")
+plt.plot(time[:vertical_steps], home_vert_z_dot, label='z dot')
 
-#plt.title("move home 2 start z dot")
-#plt.plot(time, home_2_start_z_dot, label='z dot')
+
 
 plt.show()
