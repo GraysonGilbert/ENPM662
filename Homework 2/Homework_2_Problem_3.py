@@ -1,3 +1,5 @@
+# PROBLEM 3
+
 from sympy import * 
 import numpy as np
 import matplotlib.pyplot as plt
