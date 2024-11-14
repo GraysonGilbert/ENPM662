@@ -283,8 +283,6 @@ for i in range(0, vertical_steps):
 z_dot_combined = home_vert_z_dot.tolist() + circle_z_dot + vert_z_dot.tolist() + horiz_step_z_dot.tolist() + vert_up_z_dot.tolist()
 x_dot_combined = home_vert_x_dot.tolist() + circle_x_dot + vert_x_dot.tolist() + horiz_step_x_dot.tolist() + vert_up_x_dot.tolist()
 
-print(len(z_dot_combined))
-print(len(x_dot_combined))
 #__________________________________________________________________________________________
 
 # Moving from Home Position to Start Point
