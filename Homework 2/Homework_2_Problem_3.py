@@ -161,40 +161,13 @@ gamma_dot = [0]
 
 step_tracker = 0
 
-# Make home_2_start_z_dot array
-
-home_2_start_steps = 300
-start_step = 3/home_2_start_steps
-
-ramp_up = int(home_2_start_steps * .0333334)
-
-ramp_down = int(home_2_start_steps * .966667)
-
-home_2_start_z_dot = np.zeros(home_2_start_steps)
-
-for i in range(0, home_2_start_steps):
-    if i < ramp_up:
-        home_2_start_z_dot[i] = home_2_start_z_dot[i-1] - ((.1724*1.71)/ramp_up)
- 
-    elif i >= ramp_up and i < ramp_down:
-        
-        home_2_start_z_dot[i] = -(.1724*1.71)
-
-    elif i >= ramp_down and i < home_2_start_steps:
-        home_2_start_z_dot[i] = home_2_start_z_dot[i-1] + ((.1724*1.71)/ramp_up)
-    
-    else:
-   
-        home_2_start_z_dot[i] = 0
-
-
-
 # Straight Line Down Path from Home Position
 
 vertical_steps = 400
 vert_step = 4/vertical_steps
 
 home_vert_z_dot = np.zeros(vertical_steps)
+home_vert_x_dot = np.zeros(vertical_steps)
 
 home_ramp_up_vert = int(vertical_steps * 0.1)
 home_ramp_down_vert = int(vertical_steps * 0.9)
@@ -249,6 +222,7 @@ vertical_steps = 400
 vert_step = 4/vertical_steps
 
 vert_z_dot = np.zeros(vertical_steps)
+vert_x_dot = np.zeros(vertical_steps)
 
 ramp_up_vert = int(vertical_steps * 0.1)
 ramp_down_vert = int(vertical_steps * 0.9)
@@ -272,6 +246,7 @@ horizontal_steps = 400
 horiz_step = 4/horizontal_steps
 
 horiz_step_x_dot = np.zeros(horizontal_steps)
+horiz_step_z_dot = np.zeros(horizontal_steps)
 
 ramp_up_horiz = int(horizontal_steps * 0.1)
 ramp_down_horiz = int(horizontal_steps * 0.9)
@@ -295,12 +270,21 @@ for i in range(0, horizontal_steps):
 # Straight Line Up Path
 
 vert_up_z_dot = np.zeros(vertical_steps)
+vert_up_x_dot = np.zeros(vertical_steps)
+
 rev_vert_z_dot = vert_z_dot[::-1]
 
 for i in range(0, vertical_steps):
     vert_up_z_dot[i] = (-1) * rev_vert_z_dot[i]
 
 
+# Final Combined X_dot and Z_dot trajectories
+
+z_dot_combined = home_vert_z_dot.tolist() + circle_z_dot + vert_z_dot.tolist() + horiz_step_z_dot.tolist() + vert_up_z_dot.tolist()
+x_dot_combined = home_vert_x_dot.tolist() + circle_x_dot + vert_x_dot.tolist() + horiz_step_x_dot.tolist() + vert_up_x_dot.tolist()
+
+print(len(z_dot_combined))
+print(len(x_dot_combined))
 #__________________________________________________________________________________________
 
 # Moving from Home Position to Start Point
@@ -461,7 +445,8 @@ plt.plot(time, theta_3_vals[1:], label='theta 3')
 plt.plot(time, theta_4_vals[1:], label='theta 4')
 plt.plot(time, theta_5_vals[1:], label='theta 5')
 plt.plot(time, theta_6_vals[1:], label='theta 6')
-
+plt.xlabel('time (s)')
+plt.ylabel('theta (rad)')
 plt.legend()
 
 
@@ -469,40 +454,58 @@ plt.legend()
 plt.figure(2)
 plt.title('End Effector Trajectory')
 plt.plot(x_end_pos, z_end_pos)
+plt.xlabel('X Position (m)')
+plt.ylabel('Z Position (m)')
 
 # Plot of just the shape after reaching start point
 
 plt.figure(3)
 plt.title('End Effector Trajectory (After reaching start point)')
 plt.plot(x_end_pos[400:], z_end_pos[400:])
+plt.xlabel('X Position (m)')
+plt.ylabel('Z Position (m)')
+
+plt.figure(4)
+plt.title("Z_dot and X_dot Throughout Entire Path")
+plt.plot(time, z_dot_combined, label='z dot')
+plt.plot(time, x_dot_combined, label='x dot')
+plt.xlabel('time (s)')
+plt.ylabel('theta_dot (rad/s)')
+plt.legend()
+
 
 # Plot of X_dot and Z_dot while drawing Semi Circle
 
-plt.figure(4)
-plt.title("X_dot and Z_dot while drawing Semi Circle")
-plt.plot(time[:circle_total_steps], circle_x_dot, label='x_dot')
-plt.plot(time[:circle_total_steps], circle_z_dot, label='z_dot')
+#plt.figure(4)
+#plt.title("X_dot and Z_dot while drawing Semi Circle")
+#plt.plot(time[:circle_total_steps], circle_x_dot, label='x dot')
+#plt.plot(time[:circle_total_steps], circle_z_dot, label='z dot')
+#plt.legend()
 
 # Plot of Vertical Line Down Z_dot
-plt.figure(5)
-plt.title("vertical line down z dot")
-plt.plot(time[:vertical_steps], vert_z_dot, label='z dot')
+#plt.figure(5)
+#plt.title("vertical line down z dot")
+#plt.plot(time[:vertical_steps], vert_z_dot, label='z dot')
+#plt.legend()
 
 # Plot of Horizontal Line Across Z_dot
-plt.figure(6)
-plt.title("horizontal line across x dot")
-plt.plot(time[:horizontal_steps], horiz_step_x_dot, label='x dot')
+#plt.figure(6)
+#plt.title("horizontal line across x dot")
+#plt.plot(time[:horizontal_steps], horiz_step_x_dot, label='x dot')
+#plt.legend()
 
 # Plot of Vertical Line Up Z_dot
-plt.figure(7)
-plt.title("vertical line up z dot")
-plt.plot(time[:vertical_steps], vert_up_z_dot, label='z dot')
+#plt.figure(7)
+#plt.title("vertical line up z dot")
+#plt.plot(time[:vertical_steps], vert_up_z_dot, label='z dot')
+#plt.legend()
 
 # Plot of Moving from Home Position to Start Point
-plt.figure(8)
-plt.title("vertical line down from home position z dot")
-plt.plot(time[:vertical_steps], home_vert_z_dot, label='z dot')
+#plt.figure(8)
+#plt.title("vertical line down from home position z dot")
+#lt.plot(time[:vertical_steps], home_vert_z_dot, label='z dot')
+#plt.legend()
 
-
+# Plot of X_dot and Z_dot trajectories
 
 plt.show()
