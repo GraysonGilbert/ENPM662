@@ -12,7 +12,7 @@ a_1, a_2, a_3, a_4, a_5, a_6, =  symbols('a_1 a_2 a_3 a_4 a_5 a_6')
 alpha_1, alpha_2, alpha_3, alpha_4, alpha_5, alpha_6 = symbols('alpha_1 alpha_2 alpha_3 alpha_4 alpha_5 alpha_6')
 d_1, d_2, d_3, d_4, d_5, d_6 = symbols('d_1 d_2 d_3 d_4 d_5 d_6')
 theta_1, theta_2, theta_3, theta_4, theta_5, theta_6 = symbols('theta_1 theta_2 theta_3 theta_4 theta_5 theta_6')
-
+m1, m2, m3, m4, m5, m6, g = symbols('m1 m2 m3 m4 m5 m6 g')
 
 a_1 = 0
 a_2 = -.73731
@@ -35,6 +35,14 @@ d_4 = 0.0955
 d_5 = .1155
 d_6 = .1218
 
+m1 = 3
+m2 = 2
+m3 = 1
+m4 = 0.5
+m5 = 0.5
+m6 = 0.25
+
+g = 9.81
 
 
 # Constructing Matrices
@@ -138,6 +146,49 @@ J = Matrix([[q_1_x_dot, q_2_x_dot, q_3_x_dot, q_4_x_dot, q_5_x_dot, q_6_x_dot],
             [q_1_z_dot, q_2_z_dot, q_3_z_dot, q_4_z_dot, q_5_z_dot, q_6_z_dot],
             [Z_1, Z_2, Z_3, Z_4, Z_5, Z_6]])
 
+# Homework 3 Specific Code
+
+F = Matrix([0,
+            0,
+            5,
+            0,
+            0,
+            0,])
+
+p1 = m1 * g * (0.09165)
+p2 = m2 * g * (0.1833 + (.73731/2)*cos(theta_2))
+p3 = m3 * g * (0.1833 + .73731*cos(theta_2) + (0.3878/2)*cos(theta_2 + theta_3))
+p4 = m4 * g * (0.1833 + .73731*cos(theta_2) + 0.3878*cos(theta_2 + theta_3))
+p5 = m5 * g * (0.1833 + .73731*cos(theta_2) + 0.3878*cos(theta_2 + theta_3) + (0.1155/2)*cos(theta_2 + theta_3 + theta_4))
+p6 = m6 * g * (0.1833 + .73731*cos(theta_2) + 0.3878*cos(theta_2 + theta_3) + 0.1155*cos(theta_2 + theta_3 + theta_4))
+
+p_sum = simplify((p1 + p2 + p3 + p4 + p5 + p6)*(-1))
+
+L1_dot = (Derivative(p_sum, theta_1).doit()) * (-1)
+L2_dot = (Derivative(p_sum, theta_2).doit()) * (-1)
+L3_dot = (Derivative(p_sum, theta_3).doit()) * (-1)
+L4_dot = (Derivative(p_sum, theta_4).doit()) * (-1)
+L5_dot = (Derivative(p_sum, theta_5).doit()) * (-1)
+L6_dot = (Derivative(p_sum, theta_6).doit()) * (-1)
+
+g_matrix = Matrix([L1_dot,
+                       L2_dot,
+                       L3_dot,
+                       L4_dot,
+                       L5_dot,
+                       L6_dot])
+
+pretty_print(g_matrix)
+
+J_T = J.transpose()
+
+num = J_T * F
+
+pretty_print(num)
+
+T = g_matrix - num
+
+pretty_print(T)
 
 #___________________________________________________________________________________________________________________
 
@@ -152,6 +203,13 @@ theta_6_vals = [0]
 x_end_pos = []
 y_end_pos = []
 z_end_pos = []
+
+t_1_vals = []
+t_2_vals = []
+t_3_vals = []
+t_4_vals = []
+t_5_vals = []
+t_6_vals = []
 
 # Initialize x,yz, velocities
 x_dot = [0]
@@ -428,10 +486,24 @@ for i in range(0, total_steps):
     y_pos = end_pos[1, 3]
     z_pos = end_pos[2, 3]
 
+    t_vals = T.subs({theta_1: theta_1_vals[i], theta_2: theta_2_vals[i], theta_3: theta_3_vals[i], theta_4: theta_4_vals[i], theta_5: theta_5_vals[i], theta_6: theta_6_vals[i]})
+    t_1 = t_vals[0]
+    t_2 = t_vals[1]
+    t_3 = t_vals[2]
+    t_4 = t_vals[3]
+    t_5 = t_vals[4]
+    t_6 = t_vals[5]
 
     x_end_pos.append(x_pos)
     y_end_pos.append(y_pos)
     z_end_pos.append(z_pos)
+
+    t_1_vals.append(t_1)
+    t_2_vals.append(t_2)
+    t_3_vals.append(t_3)
+    t_4_vals.append(t_4)
+    t_5_vals.append(t_5)
+    t_6_vals.append(t_6)
 
 
 # Plotting Relevant Information
@@ -479,6 +551,19 @@ plt.title('End Effector Trajectory')
 plt.plot(y_end_pos, z_end_pos)
 plt.xlabel('y Position (m)')
 plt.ylabel('Z Position (m)')
+
+# Plot of Theta Values Vs. Time
+plt.figure(6)
+plt.title('Theta Values Over Time')
+plt.plot(time, t_1_vals[:], label='theta 1')
+plt.plot(time, t_2_vals[:], label='theta 2')
+plt.plot(time, t_3_vals[:], label='theta 3')
+plt.plot(time, t_4_vals[:], label='theta 4')
+plt.plot(time, t_5_vals[:], label='theta 5')
+plt.plot(time, t_6_vals[:], label='theta 6')
+plt.xlabel('time (s)')
+plt.ylabel('theta (rad)')
+plt.legend()
 
 
 # Plot of X_dot and Z_dot while drawing Semi Circle
