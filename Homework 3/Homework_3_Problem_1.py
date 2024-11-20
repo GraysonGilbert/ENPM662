@@ -142,11 +142,11 @@ J = Matrix([[q_1_x_dot, q_2_x_dot, q_3_x_dot, q_4_x_dot, q_5_x_dot, q_6_x_dot],
 #___________________________________________________________________________________________________________________
 
 #Initialize Robot in Home Position
-theta_1_vals = [0]
+theta_1_vals = [.785]
 theta_2_vals = [0.1]
 theta_3_vals = [-.383]
 theta_4_vals = [0.283]
-theta_5_vals = [0.0001]
+theta_5_vals = [-.785]
 theta_6_vals = [0]
 
 x_end_pos = []
@@ -154,7 +154,7 @@ y_end_pos = []
 z_end_pos = []
 
 # Initialize x,yz, velocities
-x_dot = [-0.001]
+x_dot = [0]
 y_dot = [0]
 z_dot = []
 alpha_dot = [0]
@@ -472,6 +472,13 @@ plt.plot(time, x_dot_combined, label='x dot')
 plt.xlabel('time (s)')
 plt.ylabel('theta_dot (rad/s)')
 plt.legend()
+
+# Plot of End Effector Trajectory
+plt.figure(5)
+plt.title('End Effector Trajectory')
+plt.plot(y_end_pos, z_end_pos)
+plt.xlabel('y Position (m)')
+plt.ylabel('Z Position (m)')
 
 
 # Plot of X_dot and Z_dot while drawing Semi Circle

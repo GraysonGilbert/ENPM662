@@ -13,6 +13,9 @@ alpha_1, alpha_2, alpha_3, alpha_4, alpha_5, alpha_6 = symbols('alpha_1 alpha_2 
 d_1, d_2, d_3, d_4, d_5, d_6 = symbols('d_1 d_2 d_3 d_4 d_5 d_6')
 theta_1, theta_2, theta_3, theta_4, theta_5, theta_6 = symbols('theta_1 theta_2 theta_3 theta_4 theta_5 theta_6')
 
+m1, m2, m3, m4, m5, m6, g = symbols('m1 m2 m3 m4 m5 m6 g')
+
+
 
 a_1 = 0
 a_2 = -.73731
@@ -35,12 +38,12 @@ d_4 = 0.0955
 d_5 = .1155
 d_6 = .1218
 
-theta_1 = 0 
-theta_2 = 0
-theta_3 = 0
-theta_4 = pi/2
-theta_5 = 0
-theta_6 = 0
+#theta_1 = 0 
+#theta_2 = 0
+#theta_3 = 0
+#theta_4 = 0
+#theta_5 = 0
+#theta_6 = 0
 
 
 
@@ -150,15 +153,52 @@ z = P_6_wrt_0[2]
 #print('A1:')
 #pretty_print(simplify(A_1))
 #print('A2:')
-#pretty_print(simplify(A_2))
+#pretty_print(simplify(A_2_wrt_0))
 #print('A3:')
-#pretty_print(simplify(A_3))
+#pretty_print(simplify(A_3_wrt_0))
 #print('A4:')
-#pretty_print(simplify(A_4))
+#pretty_print(simplify(A_4_wrt_0))
 #print('A5:')
-#pretty_print(simplify(A_5))
+#pretty_print(simplify(A_5_wrt_0))
 #print('A6:')
-#pretty_print(simplify(A_6))
+#pretty_print(simplify(A_6_wrt_0))
 
-print("Transformation of End Effector with respect to Base:")
-pretty_print(A_6_wrt_0)
+#print("Transformation of End Effector with respect to Base:")
+#Spretty_print(A_6_wrt_0)
+
+m_1 = 3
+m_2 = 2
+m_3 = 1
+m_4 = 0.5
+m_5 = 0.5
+m_6 = 0.25
+
+g = 9.81
+
+
+p1 = m1 * g * (0.09165)
+p2 = m2 * g * (0.1833 + (.73731/2)*cos(theta_2))
+p3 = m3 * g * (0.1833 + .73731*cos(theta_2) + (0.3878/2)*cos(theta_2 + theta_3))
+p4 = m4 * g * (0.1833 + .73731*cos(theta_2) + 0.3878*cos(theta_2 + theta_3))
+p5 = m5 * g * (0.1833 + .73731*cos(theta_2) + 0.3878*cos(theta_2 + theta_3) + (0.1155/2)*cos(theta_2 + theta_3 + theta_4))
+p6 = m6 * g * (0.1833 + .73731*cos(theta_2) + 0.3878*cos(theta_2 + theta_3) + 0.1155*cos(theta_2 + theta_3 + theta_4))
+
+p_sum = simplify((p1 + p2 + p3 + p4 + p5 + p6)*(-1))
+#pretty_print(p_sum)
+
+
+L1_dot = (Derivative(p_sum, theta_1).doit()) * (-1)
+L2_dot = (Derivative(p_sum, theta_2).doit()) * (-1)
+L3_dot = (Derivative(p_sum, theta_3).doit()) * (-1)
+L4_dot = (Derivative(p_sum, theta_4).doit()) * (-1)
+L5_dot = (Derivative(p_sum, theta_5).doit()) * (-1)
+L6_dot = (Derivative(p_sum, theta_6).doit()) * (-1)
+
+g_matrix = Matrix([L1_dot,
+                       L2_dot,
+                       L3_dot,
+                       L4_dot,
+                       L5_dot,
+                       L6_dot])
+
+pretty_print(g_matrix)
