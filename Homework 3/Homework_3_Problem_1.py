@@ -149,11 +149,13 @@ J = Matrix([[q_1_x_dot, q_2_x_dot, q_3_x_dot, q_4_x_dot, q_5_x_dot, q_6_x_dot],
 # Homework 3 Specific Code
 
 F = Matrix([0,
-            0,
             5,
             0,
             0,
+            0,
             0,])
+
+# Calculating Potential Energy
 
 p1 = m1 * g * (0.09165)
 p2 = m2 * g * (0.1833 + (.73731/2)*cos(theta_2))
@@ -171,6 +173,8 @@ L4_dot = (Derivative(p_sum, theta_4).doit()) * (-1)
 L5_dot = (Derivative(p_sum, theta_5).doit()) * (-1)
 L6_dot = (Derivative(p_sum, theta_6).doit()) * (-1)
 
+# Gravity Matrix
+
 g_matrix = Matrix([L1_dot,
                        L2_dot,
                        L3_dot,
@@ -178,16 +182,16 @@ g_matrix = Matrix([L1_dot,
                        L5_dot,
                        L6_dot])
 
+print("Gravity Matrix:")
 pretty_print(g_matrix)
 
 J_T = J.transpose()
 
 num = J_T * F
 
-pretty_print(num)
-
 T = g_matrix - num
 
+print("Resulting Torque Matrix:")
 pretty_print(T)
 
 #___________________________________________________________________________________________________________________
@@ -545,59 +549,48 @@ plt.xlabel('time (s)')
 plt.ylabel('theta_dot (rad/s)')
 plt.legend()
 
-# Plot of End Effector Trajectory
-plt.figure(5)
-plt.title('End Effector Trajectory')
-plt.plot(y_end_pos, z_end_pos)
-plt.xlabel('y Position (m)')
-plt.ylabel('Z Position (m)')
 
-# Plot of Theta Values Vs. Time
-plt.figure(6)
-plt.title('Theta Values Over Time')
-plt.plot(time, t_1_vals[:], label='theta 1')
-plt.plot(time, t_2_vals[:], label='theta 2')
-plt.plot(time, t_3_vals[:], label='theta 3')
-plt.plot(time, t_4_vals[:], label='theta 4')
-plt.plot(time, t_5_vals[:], label='theta 5')
-plt.plot(time, t_6_vals[:], label='theta 6')
+# Plot of Torque Values Vs. Time
+plt.figure(5)
+plt.title('Torque Values Over Time')
+plt.plot(time, t_1_vals[:], label='torque at joint 1')
 plt.xlabel('time (s)')
-plt.ylabel('theta (rad)')
+plt.ylabel('torque (Nm)')
 plt.legend()
 
+plt.figure(6)
+plt.title('Torque Values Over Time')
+plt.plot(time, t_2_vals[:], label='torque at joint 2')
+plt.xlabel('time (s)')
+plt.ylabel('torque (Nm)')
+plt.legend()
 
-# Plot of X_dot and Z_dot while drawing Semi Circle
+plt.figure(7)
+plt.title('Torque Values Over Time')
+plt.plot(time, t_3_vals[:], label='torque at joint 3')
+plt.xlabel('time (s)')
+plt.ylabel('torque (Nm)')
+plt.legend()
 
-#plt.figure(4)
-#plt.title("X_dot and Z_dot while drawing Semi Circle")
-#plt.plot(time[:circle_total_steps], circle_x_dot, label='x dot')
-#plt.plot(time[:circle_total_steps], circle_z_dot, label='z dot')
-#plt.legend()
+plt.figure(8)
+plt.title('Torque Values Over Time')
+plt.plot(time, t_4_vals[:], label='torque at joint 4')
+plt.xlabel('time (s)')
+plt.ylabel('torque (Nm)')
+plt.legend()
 
-# Plot of Vertical Line Down Z_dot
-#plt.figure(5)
-#plt.title("vertical line down z dot")
-#plt.plot(time[:vertical_steps], vert_z_dot, label='z dot')
-#plt.legend()
+plt.figure(9)
+plt.title('Torque Values Over Time')
+plt.plot(time, t_5_vals[:], label='torque at joint 5')
+plt.xlabel('time (s)')
+plt.ylabel('torque (Nm)')
+plt.legend()
 
-# Plot of Horizontal Line Across Z_dot
-#plt.figure(6)
-#plt.title("horizontal line across x dot")
-#plt.plot(time[:horizontal_steps], horiz_step_x_dot, label='x dot')
-#plt.legend()
-
-# Plot of Vertical Line Up Z_dot
-#plt.figure(7)
-#plt.title("vertical line up z dot")
-#plt.plot(time[:vertical_steps], vert_up_z_dot, label='z dot')
-#plt.legend()
-
-# Plot of Moving from Home Position to Start Point
-#plt.figure(8)
-#plt.title("vertical line down from home position z dot")
-#lt.plot(time[:vertical_steps], home_vert_z_dot, label='z dot')
-#plt.legend()
-
-# Plot of X_dot and Z_dot trajectories
+plt.figure(10)
+plt.title('Torque Values Over Time')
+plt.plot(time, t_6_vals[:], label='torque at joint 6')
+plt.xlabel('time (s)')
+plt.ylabel('torque (Nm)')
+plt.legend()
 
 plt.show()
