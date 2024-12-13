@@ -6,26 +6,27 @@ init_printing(use_unicode=True)
 
 
 # Initializing Symbols
-a_6 =  symbols('a_6')
-alpha_6 = symbols('alpha_6')
-d_6 = symbols('d_6')
-theta_6 = symbols('theta_6')
+l1, l2, l3, i4 = symbols('l1 l2 l3 i4')
+a_5 =  symbols('a_5')
+alpha_5 = symbols('alpha_5')
+d_5 = symbols('d_5')
+theta_5 = symbols('theta_5')
 
 
 
-a_6 = 0
-alpha_6 = 0
-d_6 = 121.8
-theta_6 = 0
+a_5 = 0
+alpha_5 = 0
+d_5 = l3 + i4
+theta_5 = 0
 
 
 
 
 
-A_6 = Matrix([[cos(theta_6), -cos(alpha_6)*sin(theta_6), sin(alpha_6)*sin(theta_6), a_6*cos(theta_6)],
-             [sin(theta_6), cos(alpha_6)*cos(theta_6), -sin(alpha_6)*cos(theta_6), a_6*sin(theta_6)],
-             [0, sin(alpha_6), cos(alpha_6), d_6],
+A_5 = Matrix([[cos(theta_5), -cos(alpha_5)*sin(theta_5), sin(alpha_5)*sin(theta_5), a_5*cos(theta_5)],
+             [sin(theta_5), cos(alpha_5)*cos(theta_5), -sin(alpha_5)*cos(theta_5), a_5*sin(theta_5)],
+             [0, sin(alpha_5), cos(alpha_5), d_5],
              [0, 0, 0, 1]])
 
 
-pretty_print(A_6)
+pretty_print(simplify(A_5))
