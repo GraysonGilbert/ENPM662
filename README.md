@@ -10,5 +10,5 @@ Homework 2 Topics:
     
 Homework 3 Topics:
   -	End effector force control
-  -	Build on Homework 2, and perform the same trajectory, but this time apply a constant 5N of force to the end effector
+  -	Build on Homework 2 and perform the same trajectory, but this time apply a constant 5N of force to the end effector
   -	Assume quasi-static motion, and compensate for gravitational force acting on individual links of the manipulator
