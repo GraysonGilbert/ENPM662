@@ -1,6 +1,7 @@
 Homework 1 Topics:
   -	Two-Wheeled Differential Drive Robot Modeling
   -	Forward and Inverse Velocity Kinematics of a planar RRR robot arm
+
 Homework 2 Topics:
   -	Position Kinematics of 6-DOF UR3 robot from Universal Robots
   -	Velocity Kinematics of UR3
