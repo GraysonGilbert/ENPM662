@@ -7,6 +7,7 @@ Homework 2 Topics:
   -	Velocity Kinematics of UR3
   -	Inverse Velocity Kinematics of UR3
   -	Simulate desired end effector trajectory given specific constraints
+    
 Homework 3 Topics:
   -	End effector force control
         o	Build on Homework 2, and perform the same trajectory, but this time apply a constant 5N of force to the end effector
